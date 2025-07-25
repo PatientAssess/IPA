@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+motor
+pydantic[email]
+pymongo
+python-multipart
+fastapi-login
+passlib[bcrypt]
+python-jose
+jinja2
+rich
+PyJWT
+python-decouple
+reportlab
+requests
