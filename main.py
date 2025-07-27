@@ -640,11 +640,11 @@ async def update_user_data(token: token1,req: UpdateUserModel= Body(...)):
                 detail="Failed to update user data"
             )
             
-        return {
+    return {
             "message": f"User with ID: {user_id} updated successfully",
             "user_id": user_id
         }
-    
+          
 #optional
 @app.delete("/{id}", dependencies=[Depends(JWTBearer())], response_description="user data deleted from the database")
 async def delete_user_data(id: str):
