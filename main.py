@@ -621,7 +621,7 @@ async def update_user_data(id: str, req: UpdateUserModel = Body(...)):
     
 @app.put("/change_user_data",tags=["user"])
 async def update_user_data(token: token1,req: UpdateUserModel= Body(...)):
-    req = {k: v for k, v in req.dict().items() if v is not None}
+    #req = {k: v for k, v in req.dict().items() if v is not None}
     a = JWTBearer()
     data = JWTBearer.get_user(a, token.token)
     if data:
