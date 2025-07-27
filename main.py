@@ -782,8 +782,9 @@ class clin_name(BaseModel):
 @app.post("/get_clinics_by_name", tags=["clinic", "user"])
 def get_clinics(clin:clin_name):
     clinics = []
-    for user in clinic_collection.find({"name":clin.clinic_name}):
-      		clinics.append(clinic_helper(user))
+    query = {"name": {"$regex": f".*{clin.clinic_name}.*", "$options": "i"}}
+    for user in clinic_collection.find(query):
+        clinics.append(clinic_helper(user))
     return clinics
 
 @app.post("/get_doctors_by_clinic_name", tags=["clinic", "user"])
