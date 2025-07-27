@@ -618,7 +618,7 @@ async def update_user_data(id: str, req: UpdateUserModel = Body(...)):
         "There was an error updating the user data.",
     )
    ''' 
-    
+'''    
 @app.put("/change_user_data",tags=["user"])
 async def update_user_data(token: token1,req: UpdateUserModel= Body(...)):
     a = JWTBearer()
@@ -643,7 +643,48 @@ async def update_user_data(token: token1,req: UpdateUserModel= Body(...)):
             "message": f"User with ID: {user_id} updated successfully",
             "user_id": user_id
         }
-          
+  '''
+
+
+@app.put("/change_user_data", tags=["user"])
+async def update_user_data(token: token1, req: UpdateUserModel = Body(default=None)):
+    # Фильтруем None-значения
+    if req is None:
+        req = {}
+    else:
+        req = {k: v for k, v in req.dict().items() if v is not None}
+    
+    a = JWTBearer()
+    data = JWTBearer.get_user(a, token.token)
+    if data:
+        id = data.get("user_id")
+    else: 
+        return ErrorResponseModel(
+            "No such user",
+            404,
+            "There was an error updating the user data.",
+        )    
+    
+    # Проверяем, есть ли что обновлять
+    if not req:
+        return ErrorResponseModel(
+            "No data provided",
+            400,
+            "You need to provide at least one field to update.",
+        )
+    
+    updated_user = await update_user(id, req)
+    if updated_user:
+        return ResponseModel(
+            "user with ID: {} name update is successful".format(id),
+            "user name updated successfully",
+        )
+    return ErrorResponseModel(
+        "An error occurred",
+        404,
+        "There was an error updating the user data.",
+    )
+
 #optional
 @app.delete("/{id}", dependencies=[Depends(JWTBearer())], response_description="user data deleted from the database")
 async def delete_user_data(id: str):
