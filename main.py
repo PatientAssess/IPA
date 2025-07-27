@@ -632,18 +632,18 @@ async def update_user_data(token: token1,req: UpdateUserModel= Body(...)):
         404,
         "There was an error updating the user data.",
     )    
-    updated_user = await update_user(id, req)
-    if updated_user:
-        return ResponseModel(
-            "user with ID: {} name update is successful".format(id),
-            "user name updated successfully",
-        )
-    return ErrorResponseModel(
-        "An error occurred",
-        404,
-        "There was an error updating the user data.",
-    )    
-    
+    update_data = req.model_dump(exclude_unset=True)
+    updated_user = await update_user(id, update_data)
+    if not updated_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to update user data"
+            )
+            
+        return {
+            "message": f"User with ID: {user_id} updated successfully",
+            "user_id": user_id
+        }
     
 #optional
 @app.delete("/{id}", dependencies=[Depends(JWTBearer())], response_description="user data deleted from the database")
