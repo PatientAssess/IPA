@@ -139,8 +139,9 @@ class ClinicSchema(BaseModel):
             }
         }
    
-
+'''
 class UpdateUserModel(BaseModel):
+
     name: Optional[str]
     login: Optional[str]
     birth: Optional[str]
@@ -156,7 +157,14 @@ class UpdateUserModel(BaseModel):
                 "address": "India",
             }
         }
-
+'''
+class UpdateUserModel(BaseModel):
+    name: Optional[str] = None
+    login: Optional[str] = None
+    birth: Optional[str] = None
+    address: Optional[str] = None
+    main_doctor_id: Optional[str] = None
+    clinic_id: Optional[str] = None
 
 def ResponseModel(data, message):
     return {
