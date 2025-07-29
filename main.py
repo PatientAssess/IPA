@@ -779,7 +779,7 @@ def get_requests_user(user_id):
 	elems = []
 	appointment_card = appointment_collection.find({"requests":{"$elemMatch":{"user_id" : user_id}}})
 	for elem in appointment_card:
-			elems.append(app_helper_conf(elem))
+			elems.append(app_helper(elem))
 	return elems
 	
 class Item(BaseModel):
