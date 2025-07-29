@@ -816,7 +816,7 @@ def get_suggested_events(token:token1):
     	date = req.get("date")
     	time = req.get("time")
     	user = get_user_with_id(req.get("user_id")).get("name")
-    	new = {"start": f'{date}T{time}:00', "doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email') 
+    	new = {"start": f'{date}T{time}:00', "doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email')} 
     	returned.append(new)
     return returned
 	
