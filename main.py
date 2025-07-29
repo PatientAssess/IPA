@@ -775,6 +775,13 @@ def get_confirms_user(user_id):
 			elems.append(app_helper_conf(elem))
 	return elems
 
+def get_requests_user(user_id):
+	elems = []
+	appointment_card = appointment_collection.find({"requests":{"$elemMatch":{"user_id" : user_id}}})
+	for elem in appointment_card:
+			elems.append(app_helper_conf(elem))
+	return elems
+	
 class Item(BaseModel):
     start: str = "2024-04-09T10:00:00"
     end: str = "2024-04-09T10:30:00"
@@ -795,6 +802,22 @@ def get_events(token:token1):
 	    	time = req.get("time")
 	    	doc = get_doc_with_id(appointment[1])
 	    	new = {"start": f'{date}T{time}:00', "end": f'{date}T{time[0]}{time[1]}:30:00',"doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email') }
+	    	returned.append(new)
+	
+    return returned
+
+@app.post("/user_requested_events",tags=["user"],response_model=list[Item])
+def get_events(token:token1):
+    user_id = str(decodeJWT(token.token).get("user_id"))
+    reqs = get_requests_user(user_id)
+    returned = []
+    for appointment in reqs:
+	    requests = appointment[0]	    
+	    for req in requests:
+	    	date = req.get("date")
+	    	time = req.get("time")
+	    	doc = get_doc_with_id(appointment[1])
+	    	new = {"start": f'{date}T{time}:00', "doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email') }
 	    	returned.append(new)
 	
     return returned
