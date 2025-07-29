@@ -709,7 +709,7 @@ def get_requests(doctor_id):
 	elems = []
 	appointment_card = appointment_collection.find({"doctor_id" : doctor_id})
 	for elem in appointment_card:
-			elems.append(app_helper1(elem))
+			elems.append(app_helper(elem))
 	return elems
 
 
