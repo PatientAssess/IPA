@@ -128,7 +128,7 @@ def prom_helper(user):
     return user["conv_history"]
  
 def app_helper(user):
-    return user["requests"]
+    return user["requests"], user["doctor_id"]
 
 def app_helper_conf(user):
    # return user["confirms"]
