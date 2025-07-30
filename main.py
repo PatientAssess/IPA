@@ -806,13 +806,6 @@ def get_events(token:token1):
 	
     return returned
 	
-@app.post("/user_suggested_events", tags=["user"])
-def get_suggested_events(token:token1):
-    user_id = str(decodeJWT(token.token).get("user_id"))
-    reqs = get_requests_user(user_id)
-    
-    return reqs
-	
 @app.post("/user_requested_events",tags=["user"],response_model=list[Item])
 def get_events(token:token1):
     user_id = str(decodeJWT(token.token).get("user_id"))
