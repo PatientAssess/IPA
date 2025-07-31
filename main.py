@@ -787,9 +787,22 @@ class Item(BaseModel):
     end: str = "2024-04-09T10:30:00"
     doc_name: str = "Aniket"
     doc_surname: str = "Sarode"
+    father_name: str = "father_name"
     doc_specialty: str = "Paediatrics"
     email: str = "ankit@gmail.com"
     req_id: str = "idid"
+    clinicName: str = "clinicName"
+    
+def get_doctor_info(doct_id: str) -> dict:
+    try:
+        doctor = doctor_collection.find_one(
+            {'_id': ObjectId(doct_id)},
+            {'_id': 0, 'working_days': 0, 'login' : 0, 'password': 0}
+              # Исключаем _id из результата
+        )
+        return doctor or {"error": "Doctor not found"}
+    except Exception as e:
+        return {"error": str(e)}    
     
 @app.post("/user_confirmed_events",tags=["user"],response_model=list[Item])
 def get_events(token:token1):
@@ -799,15 +812,16 @@ def get_events(token:token1):
     for appointment in reqs:
 	    requests = appointment[0]	    
 	    for req in requests:
-	    	date = req.get("date")
-	    	time = req.get("time")
-	    	doc = get_doc_with_id(appointment[1])
-	    	req_id = req.get("req_id")
-	    	new = {"start": f'{date}T{time}:00', "end": f'{date}T{time[0]}{time[1]}:30:00',"doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email'), "req_id":{req_id}}
-	    	returned.append(new)
+                doct_id = appointment[1]
+                date = req.get("date")
+                time = req.get("time")
+                doc = get_doctor_info(doct_id)
+                con_id = req.get("con_id")
+                new = {"start": f'{date}T{time}:00', "end": f'{date}T{time[0]}{time[1]}:30:00',"doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email'), "req_id":con_id, "clinicName" : doc.get('clinic_name')}
+                returned.append(new)
 	
     return returned
-	
+
 @app.post("/user_requested_events",tags=["user"],response_model=list[Item])
 def get_events(token:token1):
     user_id = str(decodeJWT(token.token).get("user_id"))
@@ -816,15 +830,27 @@ def get_events(token:token1):
     for appointment in reqs:
 	    requests = appointment[0]	    
 	    for req in requests:
-	    	date = req.get("date")
-	    	time = req.get("time")
-	    	doc = get_doc_with_id(appointment[1])
-	    	req_id = req.get("req_id")
-	    	new = {"start": f'{date}T{time}:00', "doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email') , "req_id":{req_id}}
-	    	returned.append(new)
+                doct_id = appointment[1]
+                date = req.get("date")
+                time = req.get("time")
+                doc = get_doctor_info(doct_id)
+                req_id = req.get("req_id")
+                new = {"start": f'{date}T{time}:00', "doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email') , "req_id": req_id, "clinicName" : doc.get('clinic_name')}
+                returned.append(new)
 	
     return returned
-
+    
+@app.post("/is_rejected",tags=["user"])  
+def is_req_id_exists(req_id: str) -> bool:
+    # Проверяем наличие в requests или confirms, true - rejected
+    exists = appointment_collection.count_documents({
+        "$or": [
+            {"requests.req_id": req_id},
+            {"confirms.req_id": req_id}
+        ]
+    }, limit=1) > 0 
+    return not exists
+    
 ###################Clinic#####################################################
 
 
@@ -961,4 +987,3 @@ def pdf(sch:forpdf):
     buf.seek(0) 
     
     return Response(content = buf.getvalue(), headers={'content-disposition': 'attachment','media_type':'application/pdf'})
-
