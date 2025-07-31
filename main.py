@@ -128,7 +128,7 @@ def prom_helper(user):
     return user["conv_history"]
  
 def app_helper(user):
-    return user["requests"], user["doctor_id"]
+    return user["requests"]
 
 def app_helper_conf(user):
    # return user["confirms"]
@@ -141,7 +141,7 @@ def conf_helper(user) -> dict:
     return user["confirms"]
 
 def app_helper1(user)->dict:
-    return user["requests"]
+    return user["requests"], user["doctor_id"]
     
 def conv_helper(user):
     return user["convos"]
@@ -779,7 +779,7 @@ def get_requests_user(user_id):
 	elems = []
 	appointment_card = appointment_collection.find({"requests":{"$elemMatch":{"user_id" : user_id}}})
 	for elem in appointment_card:
-			elems.append(app_helper(elem))
+			elems.append(app_helper1(elem))
 	return elems
 	
 class Item(BaseModel):
