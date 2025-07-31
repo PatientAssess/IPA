@@ -789,6 +789,7 @@ class Item(BaseModel):
     doc_surname: str = "Sarode"
     doc_specialty: str = "Paediatrics"
     email: str = "ankit@gmail.com"
+    req_id = "idid"
     
 @app.post("/user_confirmed_events",tags=["user"],response_model=list[Item])
 def get_events(token:token1):
@@ -800,8 +801,9 @@ def get_events(token:token1):
 	    for req in requests:
 	    	date = req.get("date")
 	    	time = req.get("time")
+		req_id = req.get("req_id")
 	    	doc = get_doc_with_id(appointment[1])
-	    	new = {"start": f'{date}T{time}:00', "end": f'{date}T{time[0]}{time[1]}:30:00',"doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email') }
+	    	new = {"start": f'{date}T{time}:00', "end": f'{date}T{time[0]}{time[1]}:30:00',"doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email'), "req_id":{req_id}}
 	    	returned.append(new)
 	
     return returned
@@ -816,8 +818,9 @@ def get_events(token:token1):
 	    for req in requests:
 	    	date = req.get("date")
 	    	time = req.get("time")
+		req_id = req.get("req_id")
 	    	doc = get_doc_with_id(appointment[1])
-	    	new = {"start": f'{date}T{time}:00', "doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email') }
+	    	new = {"start": f'{date}T{time}:00', "doc_name": doc.get('name'),"doc_surname": doc.get('surname'),"father_name": doc.get('father_name'),"doc_specialty": doc.get('specialty'), "email": doc.get('email') , "req_id":{req_id}}
 	    	returned.append(new)
 	
     return returned
