@@ -789,7 +789,7 @@ class Item(BaseModel):
     doc_surname: str = "Sarode"
     doc_specialty: str = "Paediatrics"
     email: str = "ankit@gmail.com"
-    req_id = "idid"
+    req_id: str = "idid"
     
 @app.post("/user_confirmed_events",tags=["user"],response_model=list[Item])
 def get_events(token:token1):
