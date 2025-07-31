@@ -799,7 +799,7 @@ def get_events(token:token1):
     for appointment in reqs:
 	    requests = appointment[0]	    
 	    for req in requests:
-	        date = req.get("date")
+	    	date = req.get("date")
 	    	time = req.get("time")
 	    	doc = get_doc_with_id(appointment[1])
 	    	req_id = req.get("req_id")
@@ -824,8 +824,6 @@ def get_events(token:token1):
 	    	returned.append(new)
 	
     return returned
-
-
 
 ###################Clinic#####################################################
 
