@@ -494,6 +494,7 @@ async def register_user(user:UserSchema):
 	    schema_extra = { 
 	     		"name": user.name,
 		        "birth": user.birth,
+		        "phone": user.phone,
 		        "doctors_ids": [],
 		        "address": '',
 		        "main_doctor_id": '',
