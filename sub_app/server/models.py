@@ -1,13 +1,12 @@
 from typing import Optional
-
 from pydantic import BaseModel, EmailStr, Field
-
 
 class UserSchema(BaseModel):
     name: str = Field(...)
     birth: str = Field(...)
     login: str = Field(...) #should be changed to EmailStr
     password: str = Field(...)
+    phone: str = Field(...)
 
     class Config:
         schema_extra = {
@@ -16,23 +15,9 @@ class UserSchema(BaseModel):
                 "birth": "19.02.2004",
                 "login": "aditya@gmail.com",
                 "password": "12345",
+		"phone": "8105453533"
             }
         }
-'''
-class UpdateAppointModel_User(BaseModel):
-    doctor_email: str
-    token: str #cannot be updated
- 
-    request: dict
-    class Config:
-        schema_extra = {
-            "example": {
-                "doctor_email": "ankit@gmail.com",
-                "token": "",     
-                "request": {"date":"12.12.2012","time":"10:30"},          
-            }
-        }
-'''
 
 class UpdateAppointModel_User(BaseModel):
     doctor_email: str
