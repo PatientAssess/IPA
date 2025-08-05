@@ -34,6 +34,7 @@ def user_helper(user) -> dict:
         "login": user["login"],
         "password": user["password"],
         "birth": user['birth'],
+        "phone": user['phone'],
     }
     
 
