@@ -61,17 +61,24 @@ async def add_doctor(doctor_data: dict):
 async def add_clinic(clinic_data: dict):
     clin = await clinic_collection.insert_one(clinic_data)
     new_clin = await user_collection.find_one({"_id": clin.inserted_id})
-    
+
+async def taken_check(data: dict):
+    check_day_time_appoint = await appointment_collection.find({"doctor_id": doc_id}, {"confirms":{"$elemMatch": { "date": (data.get("request")).get("date")}}}) 
+    check_day_time_conf = await appointment_collection.find({"doctor_id": doc_id}, {"requests":{"$elemMatch": {"date": (data.get("request")).get("date")}}})
+
+    return check_day_time_appoint
+
 async def update_app(data: dict):
     doc_id = data.get("doctor_id")
-    flag = await appointment_collection.find_one({"doctor_id": doc_id}, {"requests":{"$elemMatch":{ "date": (data.get("request")).get("date"), "user_id": data.get("user_id")}}})
-    flag1 = await appointment_collection.find_one({"doctor_id": doc_id}, {"confirms":{"$elemMatch":{ "date": (data.get("request")).get("date"), "user_id": data.get("user_id")}}})
-    flag2 = await appointment_collection.find_one({"doctor_id": doc_id}, {"confirms":{"$elemMatch": { "date": (data.get("request")).get("date"), "time" : (data.get("request")).get("time")}}}) 
-    flag3 = await appointment_collection.find_one({"doctor_id": doc_id}, {"requests":{"$elemMatch": {"date": (data.get("request")).get("date"),"time" : (data.get("request")).get("time")}}}) 
+   # flag = await appointment_collection.find_one({"doctor_id": doc_id}, {"requests":{"$elemMatch":{ "date": (data.get("request")).get("date"), "user_id": data.get("user_id")}}})
+ #   flag1 = await appointment_collection.find_one({"doctor_id": doc_id}, {"confirms":{"$elemMatch":{ "date": (data.get("request")).get("date"), "user_id": data.get("user_id")}}})
+  #  flag2 = await appointment_collection.find_one({"doctor_id": doc_id}, {"confirms":{"$elemMatch": { "date": (data.get("request")).get("date"), "time" : (data.get("request")).get("time")}}}) 
+  #  flag3 = await appointment_collection.find_one({"doctor_id": doc_id}, {"requests":{"$elemMatch": {"date": (data.get("request")).get("date"),"time" : (data.get("request")).get("time")}}}) 
     app = await appointment_collection.find_one({"doctor_id": doc_id})
     alphabet = string.ascii_letters + string.digits
     key = ''.join(secrets.choice(alphabet) for _ in range(24))
-    if app and not (flag.get("requests") or flag1.get("confirms") or flag2.get("confirms") or flag3.get("requests")):
+    #if app and not (flag.get("requests") or flag1.get("confirms") or flag2.get("confirms") or flag3.get("requests")):
+    if app :
    
         updated_app = await appointment_collection.update_one(
         	{"doctor_id": doc_id}, {"$push": {"requests": {"req_id": key,"date": (data.get("request")).get("date"), "time" : (data.get("request")).get("time"), "user_id": data.get("user_id") }}}
