@@ -63,8 +63,8 @@ async def add_clinic(clinic_data: dict):
     new_clin = await user_collection.find_one({"_id": clin.inserted_id})
 
 async def taken_check(data: dict):
-    check_day_time_appoint = await appointment_collection.find({"doctor_id": doc_id}, {"confirms":{"$elemMatch": { "date": (data.get("request")).get("date")}}}) 
-    check_day_time_conf = await appointment_collection.find({"doctor_id": doc_id}, {"requests":{"$elemMatch": {"date": (data.get("request")).get("date")}}})
+    check_day_time_appoint = await appointment_collection.find({"doctor_id": doc_id}, {"confirms":{"$elemMatch": { "date": (data.get("date")}}}) 
+    check_day_time_conf = await appointment_collection.find({"doctor_id": doc_id}, {"requests":{"$elemMatch": {"date": (data.get("date")}}})
 
     return check_day_time_appoint
 
