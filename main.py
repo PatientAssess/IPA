@@ -33,6 +33,7 @@ from sub_app.server.database import (
     add_clinic,
     add_doc_to_userbase,
     reject_appointment,
+    taken_check,
 
 )
 from sub_app.server.models import (
@@ -543,6 +544,19 @@ async def doc_login(user: DoctorLoginSchema):
         	404,
         	"There was no such user.",
     		)  
+class appoint_check(BaseModel):
+	doctor_email : str
+	day : str
+	mon : str
+	year : str
+	
+@app.get("/add_appointment_data",tags=["user"])
+async def check_appointment_data(day: appoint_check)
+    date = f"20{upd.year}-{upd.month}-{upd.day}"
+    time_stamps = await taken_check({"doctor_id" : get_doctor_id_email(day.doctor_email), "date" : date})
+
+    
+     
 
 @app.put("/add_appointment_data",tags=["user"])
 async def add_appointment_data(upd: UpdateAppointModel_User):
