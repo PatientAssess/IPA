@@ -551,7 +551,7 @@ class appoint_check(BaseModel):
 	year : str
 	
 @app.get("/check_appointment_data",tags=["user"])
-async def check_appointment_data(day: appoint_check)
+async def check_appointment_data(day: appoint_check):
     date = f"20{upd.year}-{upd.month}-{upd.day}"
     time_stamps = await taken_check({"doctor_id" : get_doctor_id_email(day.doctor_email), "date" : date})
 
