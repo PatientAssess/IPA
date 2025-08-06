@@ -790,7 +790,7 @@ def get_confirms_user(user_id):
 
 def get_requests_user(user_id):
 	elems = []
-	appointment_card = appointment_collection.find({"$elemMatch":{"user_id" : user_id}}})
+	appointment_card = appointment_collection.find({"$elemMatch":{"user_id" : user_id}})
 	for elem in appointment_card:
 			elems.append(app_helper1(elem))
 	return elems
