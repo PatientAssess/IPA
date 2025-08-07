@@ -5,7 +5,7 @@ from random import randint
 import string
 import secrets
 
-MONGO_DETAILS = "mongodb+srv://sseed932:alexapol6044333963@ipa.ciuyw6c.mongodb.net/?retryWrites=true&w=majority&appName=IPA"
+MONGO_DETAILS = "mongodb+srv://{pass_secret}@ipa.ciuyw6c.mongodb.net/?retryWrites=true&w=majority&appName=IPA"
 
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 
