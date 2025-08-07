@@ -4,11 +4,11 @@ from bson.objectid import ObjectId
 from random import randint
 import string
 import secrets
+from decouple import config
 
+pass_secret = config('pass_secret')
 MONGO_DETAILS = "mongodb+srv://{pass_secret}@ipa.ciuyw6c.mongodb.net/?retryWrites=true&w=majority&appName=IPA"
-
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
-
 database = client.users
 
 user_collection = database.get_collection("users_collection")
