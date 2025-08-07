@@ -7,7 +7,7 @@ import secrets
 from decouple import config
 
 pass_secret = config('pass_secret')
-MONGO_DETAILS = "mongodb+srv://{pass_secret}@ipa.ciuyw6c.mongodb.net/?retryWrites=true&w=majority&appName=IPA"
+MONGO_DETAILS = "mongodb+srv://sseed932:{{pass_secret}@ipa.ciuyw6c.mongodb.net/?retryWrites=true&w=majority&appName=IPA"
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 database = client.users
 
