@@ -1020,7 +1020,7 @@ async def send_prompt(pr: prompt):
             strings = strings + 1
     except:
         pass
-    if strings <= 22:
+    if strings <= 100:
         response = get_chat_completion(giga_token, history)
         resp_data = response.json()['choices'][0]['message']['content']
     else:
