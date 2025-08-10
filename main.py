@@ -451,7 +451,7 @@ def get_user_data(token: token1) -> dict:
         result = {"name": res_data.get('name'), "login": res_data.get('login'), "birth": res_data.get('birth'),
                   "address": res_data.get('address'), "clinic_id": res_data.get('clinic_id'),
                   "main_doctor_id": res_data.get('main_doctor_id'), "history": res_data.get('history'),
-                  "doctors_ids": res_data.get('doctors_ids'), "convos": res_data.get('convos')}
+                  "doctors_ids": res_data.get('doctors_ids'), "convos": res_data.get('convos'), "phone": res_data.get("phone")}
         if res_data:
             return result
         else:
