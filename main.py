@@ -538,7 +538,7 @@ async def register_user(user: UserSchema):
         new_user = await add_user(schema_extra)
         return {"message": "User registered successfully"}
     else:
-        return False
+        return {"message": "Login already registrated"}
 
     ###################Doctor#####################################################
 
