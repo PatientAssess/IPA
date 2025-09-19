@@ -89,7 +89,20 @@ def user_helper(user) -> dict:
         "convos": user["convos"],
         "phone": user.get("phone"),
     }
-
+def user_helper_extra(user) -> dict:
+    return {
+        #"id": str(user["_id"]),
+        "name": user["name"],
+       #"login": user["login"],
+        "birth": user["birth"],
+       # "address": user["address"],
+        "main_doctor_id": user["main_doctor_id"],
+        "history": user["history"],
+        #"password": user["password"],
+        "doctors_ids": user["doctors_ids"],
+        #"convos": user["convos"],
+        "phone": user.["phone"],
+    }
 
 def doctor_helper(user) -> dict:
     return {
@@ -101,9 +114,7 @@ def doctor_helper(user) -> dict:
         "email": user["email"],
         "login": user["login"],
         "password": user["password"],
-
     }
-
 
 def doctor_helper_for_user(user) -> dict:
     return {
@@ -164,6 +175,11 @@ def get_users():
         users.append(user_helper(user))
     return users
 
+def get_users_appointment_data():
+    users = []
+    for user in user_collection.find():
+        users.append(user_helper_extra(user))
+    return users
 
 def get_docs():
     users = []
@@ -246,6 +262,18 @@ def get_user_with_id(id):
     if users:
         res_user = users[0]
         print(res_user)
+        return res_user
+    
+    return None
+
+def get_user_with_id_appontment(id):
+    DB = get_users_appointment_data()
+    users = []
+    for user in DB:
+        if user.get("id") == id:
+            users.append(user)
+    if users:
+        res_user = users[0]
         return res_user
     
     return None
@@ -793,8 +821,8 @@ def get_suggested_events(token: token1):
     for req in requests:
         date = req.get("date")
         time = req.get("time")
-        username = get_user_with_id(req.get("user_id")).get("name")
-        phone = get_user_with_id(req.get("user_id")).get("phone")
+        username = get_user_with_id_appointment(req.get("user_id")).get("name")
+        phone = get_user_with_id_appointment(req.get("user_id")).get("phone")
         new = {"username": username, "phone": phone, "id": req.get('req_id'), "title": "Appointment", "start": f'{date}T{time}:00',
                "end": f'{date}T{time[0]}{time[1]}:30:00', "allDay": False}
         returned.append(new)
