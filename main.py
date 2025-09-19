@@ -245,8 +245,9 @@ def get_user_with_id(id):
             users.append(user)
     if users:
         res_user = users[0]
-
+        print(res_user)
         return res_user
+    
     return None
 
 
@@ -815,7 +816,7 @@ async def get_events(token: token1):
         u = get_user_with_id(id)
         user = u.get("name")
         user_birth = u.get('birth')
-        new = {'username': user, 'birth': user_birth, 'user_id': req.get("user_id"), phone: u.get('phone')}
+        new = {'username': user, 'birth': user_birth, 'user_id': req.get("user_id")}
         if new not in returned:
             returned.append(new)
         console.log(returned)
