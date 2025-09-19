@@ -177,9 +177,10 @@ def get_users():
 
 def get_users_appointment_data():
     users = []
-    for user in user_collection.find():
+    collection = user_collection.find()
+    print(collection)
+    for user in collection:
         users.append(user_helper_extra(user))
-    print(users)
     return users
 
 def get_docs():
