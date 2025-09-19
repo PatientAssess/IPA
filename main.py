@@ -266,7 +266,7 @@ def get_user_with_id(id):
     
     return None
 
-def get_user_with_id_appontment(id):
+def get_user_with_id_appointment(id):
     DB = get_users_appointment_data()
     users = []
     for user in DB:
