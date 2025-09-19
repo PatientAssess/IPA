@@ -792,8 +792,9 @@ def get_suggested_events(token: token1):
     for req in requests:
         date = req.get("date")
         time = req.get("time")
-        user = get_user_with_id(req.get("user_id")).get("name")
-        new = {"username": user, "id": req.get('req_id'), "title": "Appointment", "start": f'{date}T{time}:00',
+        username = get_user_with_id(req.get("user_id")).get("name")
+        phone = get_user_with_id(req.get("user_id")).get("phone")
+        new = {"username": username, "phone": phone, "id": req.get('req_id'), "title": "Appointment", "start": f'{date}T{time}:00',
                "end": f'{date}T{time[0]}{time[1]}:30:00', "allDay": False}
         returned.append(new)
     return returned
