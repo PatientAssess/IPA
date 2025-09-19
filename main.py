@@ -87,7 +87,7 @@ def user_helper(user) -> dict:
         "password": user["password"],
         "doctors_ids": user["doctors_ids"],
         "convos": user["convos"],
-        "phone": user.get("phone"),
+        "phone": user["phone"],
     }
 def user_helper_extra(user) -> dict:
     return {
