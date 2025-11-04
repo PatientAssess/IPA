@@ -1015,7 +1015,7 @@ class prompt_examp(BaseModel):
     response: str
 
 
-MAX_STRINGS = 100  # максимальное количество сообщений в диалоге
+MAX_STRINGS = 10  # максимальное количество сообщений в диалоге
 
 @app.post("/promt_bot", tags=["bot", "user"], response_model=prompt_examp)
 async def send_prompt(pr: prompt):
