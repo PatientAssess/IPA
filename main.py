@@ -919,7 +919,6 @@ def get_doctor_info(doct_id: str) -> dict:
 def get_events(token: token1):
     user_id = str(decodeJWT(token.token).get("user_id"))
     reqs = get_confirms_user(user_id)
-    print(f"AAA{reqs}")
     returned = []
     for req in reqs:
         doct_id = req.get("doctor_id")
@@ -961,7 +960,7 @@ def is_req_id_exists(req_id: str) -> bool:
     exists = appointment_collection.count_documents({
         "$or": [
             {"requests.req_id": req_id},
-            {"confirms.req_id": req_id}
+            {"confirms.con_id": req_id}
         ]
     }, limit=1) > 0
     return not exists
