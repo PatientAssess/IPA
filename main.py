@@ -632,7 +632,7 @@ async def add_appointment_data(upd: UpdateAppointModel_User):
         to_app = time.strptime(app_date, "%Y-%m-%d")
         if to_app < tod:
             return ErrorResponseModel("An error occurred", 405, "You can't appoint before today")
-        req = {"date": app_date, "time": f"{upd.hour}:{upd.minutes}"}
+        req = {"date": app_date, "time": f"{upd.hour}:{upd.minutes:02d}"}
         update_schema = {"doctor_id": get_doctor_id_email(upd.doctor_email), "user_id": str(user_id), "request": req}
         updated_app = await update_app(update_schema)
         if updated_app:
