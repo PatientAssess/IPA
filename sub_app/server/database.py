@@ -121,6 +121,7 @@ async def taken_check(data: dict):
     ]
 
     result = await appointment_collection.aggregate(pipeline).to_list(length=None)
+    print(result)
     return result[0]["times"] if result else []
 
 
