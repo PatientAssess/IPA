@@ -1030,7 +1030,7 @@ async def send_prompt(pr: prompt):
     except:
         pass
 
-    # Если история отсутствует — создаём её
+    # Если истории нет — создаём
     if exist is None:
         pr_data = {"user_id": user_id, "conv_history": []}
         prom_history.insert_one(pr_data)
@@ -1041,7 +1041,7 @@ async def send_prompt(pr: prompt):
         {"$push": {"conv_history": {"role": "user", "content": pr.prompt_text}}}
     )
 
-    # Получаем текущую историю
+    # Получаем всю историю
     his = prom_history.find_one({"user_id": user_id})
     history = [{
         'role': 'system',
@@ -1064,11 +1064,12 @@ async def send_prompt(pr: prompt):
     except:
         conv = []
 
-    # Проверяем количество обращений (например, максимум 20)
-    max_turns = 10  # можно изменить это число
-    num_turns = len(his.get("conv_history", []))  # сколько сообщений уже было
+    # 🟢 Подсчёт только сообщений пользователя
+    user_messages = [m for m in his.get("conv_history", []) if m["role"] == "user"]
+    num_user_turns = len(user_messages)
+    max_user_turns = 20  # максимум сообщений от пользователя, можно менять
 
-    if num_turns < max_turns:
+    if num_user_turns <= max_user_turns:
         response = get_chat_completion(giga_token, history)
         resp_data = response.json()['choices'][0]['message']['content']
     else:
@@ -1080,7 +1081,7 @@ async def send_prompt(pr: prompt):
         {"$push": {"conv_history": {"role": "assistant", "content": resp_data}}}
     )
 
-    # Если бот сказал «Берегите себя!» — завершаем и сохраняем разговор
+    # Если бот завершает диалог — сохраняем и удаляем историю
     if 'Берегите себя!' in resp_data:
         t = datetime.today().strftime("d%d-%m t%H_%M")
         with open("demofile2.txt", "a") as f:
@@ -1108,7 +1109,6 @@ async def send_prompt(pr: prompt):
         )
 
     return {'response': resp_data.split('\n', 1)[0]}
-
 
 class pdflist(BaseModel):
     user_id: str
