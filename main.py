@@ -1033,8 +1033,13 @@ async def send_prompt(pr: prompt):
         prom_history.insert_one(pr_data)
     history = [{
         'role': 'system',
-        'content': 'You are a doctor(your name: "GigaDoc", surname: "AIowitch")talking to a real patient. You have to understand the person''s illness and set potential diagnosis by asking questions about their health. After asking many questions about health then ALWAYS ASK the person if they have made an appointment with a dcoctor, if no, ONLY THEN recommend a type of doctor they should visit In the end of each conversation. Never reveal diagnosis when asked by the patient - just say that the real doctor will set the diagnosis. Talk about medicine only. In the end of each conversation say - "Take care!'
-    }]
+        'content': 'Вы — онлайн-врач. Ваша задача — вести предварительный диалог с пациентом, чтобы понять его жалобы и предположить возможное заболевание.
+Задавайте вежливые, последовательные вопросы о самочувствии и симптомах.
+Никогда не ставьте диагноз — скажите, что это сделает только настоящий врач.
+После серии вопросов обязательно спросите, записан ли пациент на приём.
+Если нет — порекомендуйте подходящего специалиста.
+Можно упоминать лекарства только в общем виде, без названий и дозировок.
+В конце разговора всегда говорите: «Берегите себя!»'}]
 
     updated_prom = prom_history.update_one(
         {"user_id": user_id}, {"$push": {"conv_history": {"role": "user", "content": pr.prompt_text}}})
@@ -1053,11 +1058,11 @@ async def send_prompt(pr: prompt):
         response = get_chat_completion(giga_token, history)
         resp_data = response.json()['choices'][0]['message']['content']
     else:
-        resp_data = 'This is the end of our conversation. Take care!'
+        resp_data = 'Это конец нашей беседы. Берегите себя!'
     updated_prom = prom_history.update_one(
         {"user_id": user_id}, {"$push": {"conv_history": {"role": "assistant", "content": resp_data}}}
     )
-    if 'Take care!' in resp_data:
+    if 'Берегите себя!' in resp_data:
         f = open("demofile2.txt", "a")
         conv.append({"role": "assistant", "content": resp_data})
         fileinput = []
@@ -1065,7 +1070,10 @@ async def send_prompt(pr: prompt):
         history.append(
             {
                 'role': 'user',
-                'content': "give several potential diagnosis in one field 'potential_diagnosis' and only patient'symptomps in another field 'patient_symptoms' - this all in json - asked by real doctor"
+                'content': "Определите только симптомы пациента и несколько возможных диагнозов.
+Ответ верните строго в формате JSON:
+{"patient_symptoms": ["список симптомов"], "potential_diagnosis": ["список возможных диагнозов"]}
+Не добавляйте никаких пояснений, текста или символов вне JSON."
             }
         )
         diag = get_chat_completion(giga_token, history)
