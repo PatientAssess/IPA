@@ -1014,29 +1014,29 @@ class prompt(BaseModel):
 class prompt_examp(BaseModel):
     response: str
 
-
-MAX_STRINGS = 10  # максимальное количество сообщений в диалоге
-
 @app.post("/promt_bot", tags=["bot", "user"], response_model=prompt_examp)
 async def send_prompt(pr: prompt):
     auth = str(config('auth'))
     response2 = get_token(auth)
     giga_token = ''
+    
     if response2 != 1:
         giga_token = response2.json()['access_token']
-
+    
     user_id = str(decodeJWT(pr.token).get("user_id"))
-
+    
+    # Проверяем, существует ли история пользователя
     exist = None
     try:
         exist = prom_history.find_one({"user_id": user_id})
     except:
         pass
-
+    
     if exist is None:
         pr_data = {"user_id": user_id, "conv_history": []}
         prom_history.insert_one(pr_data)
-
+    
+    # Начальная системная подсказка
     history = [{
         'role': 'system',
         'content': (
@@ -1049,51 +1049,46 @@ async def send_prompt(pr: prompt):
             'В конце разговора всегда говорите: «Берегите себя!»'
         )
     }]
-
-    # Добавляем первое сообщение пользователя
+    
+    # Добавляем сообщение пользователя в историю
     updated_prom = prom_history.update_one(
         {"user_id": user_id},
         {"$push": {"conv_history": {"role": "user", "content": pr.prompt_text}}}
     )
-
+    
     strings = 0
     his = prom_history.find_one({"user_id": user_id})
     t = datetime.today().strftime("d%d-%m t%H_%M")
-
-    # Итерация по сообщениям
-    while strings < MAX_STRINGS:
-        try:
-            conv = prom_helper(his)
-            for el in conv:
-                history.append(el)
-                strings += 1
-        except:
-            conv = []
-
-        # Если достигнут лимит сообщений — мягко завершить
-        if strings >= MAX_STRINGS:
-            resp_data = "Мы закончили диалог. Берегите себя!"
-            break
-
+    
+    # Получаем историю сообщений
+    try:
+        conv = prom_helper(his)
+        for el in conv:
+            history.append(el)
+            strings += 1
+    except:
+        pass
+    
+    # Ограничение по длине беседы
+    if strings <= 100:
         response = get_chat_completion(giga_token, history)
         resp_data = response.json()['choices'][0]['message']['content']
-
-        # Добавляем ответ ассистента в историю
-        updated_prom = prom_history.update_one(
-            {"user_id": user_id},
-            {"$push": {"conv_history": {"role": "assistant", "content": resp_data}}}
-        )
-
-        # Если бот сказал "Берегите себя!" — завершение
-        if 'Берегите себя!' in resp_data:
-            break
-
-    # Сохраняем финальную беседу в файл и коллекцию
+    else:
+        resp_data = 'Это конец нашей беседы. Берегите себя!'
+    
+    # Добавляем ответ ассистента в историю
+    updated_prom = prom_history.update_one(
+        {"user_id": user_id},
+        {"$push": {"conv_history": {"role": "assistant", "content": resp_data}}}
+    )
+    
+    # Сохраняем финальную беседу в файл и базу
     if 'Берегите себя!' in resp_data:
         with open("demofile2.txt", "a") as f:
             conv.append({"role": "assistant", "content": resp_data})
             fileinput = [{"convo": conv}]
-
+            
+            # Формируем запрос для диагноза
             history.append({
                 'role': 'user',
                 'content': (
@@ -1103,19 +1098,22 @@ async def send_prompt(pr: prompt):
                     'Не добавляйте никаких пояснений, текста или символов вне JSON.'
                 )
             })
-
+            
             diag = get_chat_completion(giga_token, history)
             fileinput.append(diag.json()['choices'][0]['message']['content'])
             f.write(str(fileinput) + '\n' + '-------------------------------------------------------------------' + "\n")
-
+        
+        # Удаляем историю пользователя из временной коллекции
         prom_history.delete_one({"user_id": user_id})
+        
+        # Сохраняем в основную коллекцию пользователя
         user_collection.update_one(
             {"_id": ObjectId(user_id)},
             {"$push": {"convos": {'filename': t, 'convo': fileinput}}}
         )
-
+    
+    # Возвращаем первый абзац ответа
     return {'response': resp_data.split('\n', 1)[0]}
-
 
 class pdflist(BaseModel):
     user_id: str
