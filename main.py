@@ -1015,6 +1015,8 @@ class prompt_examp(BaseModel):
     response: str
 
 
+MAX_STRINGS = 100  # максимальное количество сообщений в диалоге
+
 @app.post("/promt_bot", tags=["bot", "user"], response_model=prompt_examp)
 async def send_prompt(pr: prompt):
     auth = str(config('auth'))
@@ -1024,83 +1026,87 @@ async def send_prompt(pr: prompt):
         giga_token = response2.json()['access_token']
 
     user_id = str(decodeJWT(pr.token).get("user_id"))
+
     exist = None
     try:
         exist = prom_history.find_one({"user_id": user_id})
     except:
         pass
 
-    # Если истории нет — создаём
     if exist is None:
         pr_data = {"user_id": user_id, "conv_history": []}
         prom_history.insert_one(pr_data)
 
-    # Сохраняем сообщение пользователя
-    prom_history.update_one(
-        {"user_id": user_id},
-        {"$push": {"conv_history": {"role": "user", "content": pr.prompt_text}}}
-    )
-
-    # Получаем всю историю
-    his = prom_history.find_one({"user_id": user_id})
     history = [{
         'role': 'system',
         'content': (
             'Вы — онлайн-врач. Ваша задача — вести предварительный диалог с пациентом, '
             'чтобы понять его жалобы и предположить возможное заболевание. Задавайте вежливые, '
-            'последовательные вопросы о самочувствии и симптомах. Никогда не ставьте диагноз — '
-            'скажите, что это сделает только настоящий врач. После серии вопросов обязательно '
-            'спросите, записан ли пациент на приём. Если нет — порекомендуйте подходящего специалиста. '
+            'последовательные вопросы о самочувствии и симптомах. Никогда не ставьте диагноз — скажите, '
+            'что это сделает только настоящий врач. После серии вопросов обязательно спросите, '
+            'записан ли пациент на приём. Если нет — порекомендуйте подходящего специалиста. '
             'Можно упоминать лекарства только в общем виде, без названий и дозировок. '
             'В конце разговора всегда говорите: «Берегите себя!»'
         )
     }]
 
-    # Добавляем предыдущие сообщения в историю
-    try:
-        conv = prom_helper(his)
-        for el in conv:
-            history.append(el)
-    except:
-        conv = []
-
-    # 🟢 Подсчёт только сообщений пользователя
-    user_messages = [m for m in his.get("conv_history", []) if m["role"] == "user"]
-    num_user_turns = len(user_messages)
-    max_user_turns = 20  # максимум сообщений от пользователя, можно менять
-
-    if num_user_turns <= max_user_turns:
-        response = get_chat_completion(giga_token, history)
-        resp_data = response.json()['choices'][0]['message']['content']
-    else:
-        resp_data = 'Это конец нашей беседы. Берегите себя!'
-
-    # Сохраняем ответ ассистента
-    prom_history.update_one(
+    # Добавляем первое сообщение пользователя
+    updated_prom = prom_history.update_one(
         {"user_id": user_id},
-        {"$push": {"conv_history": {"role": "assistant", "content": resp_data}}}
+        {"$push": {"conv_history": {"role": "user", "content": pr.prompt_text}}}
     )
 
-    # Если бот завершает диалог — сохраняем и удаляем историю
+    strings = 0
+    his = prom_history.find_one({"user_id": user_id})
+    t = datetime.today().strftime("d%d-%m t%H_%M")
+
+    # Итерация по сообщениям
+    while strings < MAX_STRINGS:
+        try:
+            conv = prom_helper(his)
+            for el in conv:
+                history.append(el)
+                strings += 1
+        except:
+            conv = []
+
+        # Если достигнут лимит сообщений — мягко завершить
+        if strings >= MAX_STRINGS:
+            resp_data = "Мы закончили диалог. Берегите себя!"
+            break
+
+        response = get_chat_completion(giga_token, history)
+        resp_data = response.json()['choices'][0]['message']['content']
+
+        # Добавляем ответ ассистента в историю
+        updated_prom = prom_history.update_one(
+            {"user_id": user_id},
+            {"$push": {"conv_history": {"role": "assistant", "content": resp_data}}}
+        )
+
+        # Если бот сказал "Берегите себя!" — завершение
+        if 'Берегите себя!' in resp_data:
+            break
+
+    # Сохраняем финальную беседу в файл и коллекцию
     if 'Берегите себя!' in resp_data:
-        t = datetime.today().strftime("d%d-%m t%H_%M")
         with open("demofile2.txt", "a") as f:
             conv.append({"role": "assistant", "content": resp_data})
             fileinput = [{"convo": conv}]
+
             history.append({
                 'role': 'user',
                 'content': (
-                    """Определите только симптомы пациента и несколько возможных диагнозов.
-                    Ответ верните строго в формате JSON:
-                    {"patient_symptoms": ["список симптомов"], "potential_diagnosis": ["список возможных диагнозов"]}
-                    Не добавляйте никаких пояснений, текста или символов вне JSON."""
+                    'Определите только симптомы пациента и несколько возможных диагнозов. '
+                    'Ответ верните строго в формате JSON: '
+                    '{"patient_symptoms": ["список симптомов"], "potential_diagnosis": ["список возможных диагнозов"]} '
+                    'Не добавляйте никаких пояснений, текста или символов вне JSON.'
                 )
             })
+
             diag = get_chat_completion(giga_token, history)
-            diag_text = diag.json()['choices'][0]['message']['content']
-            print(diag_text)
-            fileinput.append(diag_text)
-            f.write(str(fileinput) + '\n' + '-------------------------------------------------------------------\n')
+            fileinput.append(diag.json()['choices'][0]['message']['content'])
+            f.write(str(fileinput) + '\n' + '-------------------------------------------------------------------' + "\n")
 
         prom_history.delete_one({"user_id": user_id})
         user_collection.update_one(
@@ -1109,6 +1115,7 @@ async def send_prompt(pr: prompt):
         )
 
     return {'response': resp_data.split('\n', 1)[0]}
+
 
 class pdflist(BaseModel):
     user_id: str
