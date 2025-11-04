@@ -7,9 +7,11 @@ from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import json
+import os
 
 # Регистрируем шрифт Arial для поддержки кириллицы
-pdfmetrics.registerFont(TTFont('Arial', 'ARIAL.ttf'))
+font_path = os.path.join(os.path.dirname(__file__), 'ARIAL.ttf')
+pdfmetrics.registerFont(TTFont('Arial', font_path))
 
 def addTitle(doc, title, above, under, align=TA_LEFT):
     doc.append(Spacer(1, above))
