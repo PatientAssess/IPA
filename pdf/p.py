@@ -9,8 +9,12 @@ from reportlab.pdfbase.ttfonts import TTFont
 import json
 import os
 
-# Регистрируем шрифт Arial для поддержки кириллицы
-font_path = os.path.join(os.path.dirname(__file__), 'ARIAL.ttf')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+font_path = os.path.join(BASE_DIR, 'pdf', 'ARIAL.ttf')
+
+if not os.path.exists(font_path):
+    raise FileNotFoundError(f"Шрифт не найден: {font_path}")
+
 pdfmetrics.registerFont(TTFont('Arial', font_path))
 
 def addTitle(doc, title, above, under, align=TA_LEFT):
