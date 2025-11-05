@@ -89,7 +89,7 @@ def addConv1(conv):
         
     data.append([
         Paragraph(
-            "Что вас беспокоит?", 
+            "Какие у вас жалобы?", 
             ParagraphStyle(
                 fontName=CYRILLIC_FONT,
                 name='QuestionStyle', 
