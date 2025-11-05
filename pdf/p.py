@@ -9,13 +9,18 @@ from reportlab.pdfbase.ttfonts import TTFont
 import json
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-font_path = os.path.join(BASE_DIR, 'pdf', 'ARIAL.ttf')
+FONT_URL = 'https://github.com/kavin808/arial.ttf'
+FONT_PATH = '/tmp/arial.ttf'  # на Render /tmp доступен для записи
 
-if not os.path.exists(font_path):
-    raise FileNotFoundError(f"Шрифт не найден: {font_path}")
+# Скачиваем шрифт, если его ещё нет
+if not os.path.exists(FONT_PATH):
+    r = requests.get(FONT_URL)
+    r.raise_for_status()
+    with open(FONT_PATH, 'wb') as f:
+        f.write(r.content)
 
-pdfmetrics.registerFont(TTFont('Arial', font_path))
+# Регистрируем шрифт
+pdfmetrics.registerFont(TTFont('Arial', FONT_PATH))
 
 def addTitle(doc, title, above, under, align=TA_LEFT):
     doc.append(Spacer(1, above))
