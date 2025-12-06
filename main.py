@@ -805,7 +805,7 @@ def get_events(token: token1):
     for req in requests:
         date = req.get("date")
         time = req.get("time")
-        user = get_doc_with_id(req.get("user_id")).get("name")
+        user = get_doc_with_id(req.get("688a5b3c80fb06f9c961c1f5")).get("name")
         new = {"title": user, "start": f'{date}T{time}:00', "end": f'{date}T{time[0]}{time[1]}:30:00', "allDay": False}
         returned.append(new)
 
