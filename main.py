@@ -123,7 +123,7 @@ def doctor_helper_for_user(user) -> dict:
         "surname": user["surname"],
         "father_name": user["father_name"],
         "email": user["email"],
-        "specialty": user["specialty"],
+       # "specialty": user["specialty"],
         "working_days": user["working_days"],
     }
 
