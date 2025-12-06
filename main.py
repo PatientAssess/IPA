@@ -107,7 +107,7 @@ def user_helper_extra(user) -> dict:
 def doctor_helper(user) -> dict:
     return {
         "id": str(user["_id"]),
-        "specialty": user["specialty"],
+        #"specialty": user["specialty"],
         "name": user["name"],
         "surname": user["surname"],
         "father_name": user["father_name"],
